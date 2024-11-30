@@ -1,0 +1,23 @@
+services:
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8002:8002"
+    volumes:
+      - .:/app
+    depends_on:
+      - db
+    entrypoint: ["./wait-for-it.sh", "db:3306", "--", "python", "manage.py", "runserver", "0.0.0.0:8002"]
+
+  db:
+    image: mysql:8.0
+    restart: always
+    environment:
+        MYSQL_DATABASE: borrow
+        MYSQL_ROOT_PASSWORD: root
+    volumes:
+      - .db_data:/var/lib/mysql
+    ports:
+      - "33068:3306"
