@@ -6,7 +6,7 @@ from datetime import timedelta
 
 from .models import Borrow
 from .serializers import BorrowSerializer, BorrowRequestSerializer
-
+from .producer import publish
 
 @extend_schema_view(
     list_by_user=extend_schema(
@@ -71,12 +71,14 @@ class BorrowViewSet(viewsets.ViewSet):
         user_id = serializer.validated_data['user_id']
         book_id = serializer.validated_data['book_id']
 
-        if Borrow.objects.filter(user_id=user_id, book_id=book_id).exists():
+        if Borrow.objects.filter(user_id=user_id, book_id=book_id).exclude(status='returned').exists():
             return Response({'error': 'User already borrowed this book'}, status=status.HTTP_400_BAD_REQUEST)
 
         borrow = serializer.save()
         borrow.due_date = borrow.borrow_date + timedelta(days=30)
         borrow.save()
+
+        publish('book_borrowed', book_id)
 
         serializer = BorrowSerializer(borrow)
 
@@ -91,7 +93,7 @@ class BorrowViewSet(viewsets.ViewSet):
         book_id = serializer.validated_data['book_id']
 
         try:
-            borrow = Borrow.objects.get(user_id=user_id, book_id=book_id)
+            borrow = Borrow.objects.exclude(status='returned').get(user_id=user_id, book_id=book_id)
         except Borrow.DoesNotExist:
             return Response({'error': 'User did not borrow this book'}, status=status.HTTP_400_BAD_REQUEST)
 
@@ -100,6 +102,8 @@ class BorrowViewSet(viewsets.ViewSet):
 
         borrow.status = 'returned'
         borrow.save()
+
+        publish('book_returned', book_id)
 
         return Response(status=status.HTTP_202_ACCEPTED)
 
