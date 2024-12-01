@@ -140,6 +140,6 @@ REST_FRAMEWORK = {
 SPECTACULAR_SETTINGS = {
     'TITLE': 'Service borrow API',
     'DESCRIPTION': 'Borrow service',
-    'VERSION': '1.0.0',
+    'VERSION': '1.1.0',
     'SERVE_INCLUDE_SCHEMA': False,
 }

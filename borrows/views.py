@@ -26,13 +26,15 @@ from .producer import publish
     ),
     create=extend_schema(
         summary="Borrow a book",
-        description="Borrows a book. A user can borrow a book only once .The due date is 30 days from the borrow date.",
+        description="Borrows a book. A user can borrow a book only once .The due date is 30 days from the borrow date."
+                    "Sends a message to the book service to decrement the book's stock.",
         request=BorrowRequestSerializer,
         responses=BorrowSerializer,
     ),
     return_book=extend_schema(
         summary="Return a book",
-        description="Returns a book. A user can return a book only once.",
+        description="Returns a book. A user can return a book only once. Sends a message to the book service to "
+                    "increment the book's stock",
         request=BorrowRequestSerializer,
     ),
     extend=extend_schema(
