@@ -5,3 +5,12 @@ django-mysql==4.15.0
 django-cors-headers==4.6.0
 pika==1.3.2
 requests==2.32.3
+drf-spectacular==0.28.0
+python-dotenv==1.0.1
+grpcio==1.68.0
+grpcio-tools==1.68.0
+gunicorn
+django-dotenv
+psycopg2-binary
+django-storages
+boto3

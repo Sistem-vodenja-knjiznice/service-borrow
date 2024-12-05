@@ -1,0 +1,65 @@
+name: Build Docker Container & Push to DO Registry
+
+on:
+  workflow_call:
+  workflow_dispatch:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  test_django_job:
+    uses: Sistem-vodenja-knjiznice/service-borrow/.github/workflows/test.yaml@main
+  build:
+    runs-on: ubuntu-latest
+    needs: [test_django_job]
+    env:
+      CLUSTER_NAME: k8s-1-31-1-do-4-fra1-rso
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      - name: Install doctl
+        uses: digitalocean/action-doctl@v2
+        with:
+          token: ${{ secrets.DO_API_TOKEN_KEY }}
+      - name: Login to DigitalOcean Container Registry with short-lived token
+        run: doctl registry login --expiry-seconds 300
+      - name: Build container image
+        working-directory: .
+        run: | 
+          docker build -f Dockerfile \ 
+            -t registry.digitalocean.com/rso-vaje/service-borrow:latest .
+            -t registry.digitalocean.com/rso-vaje/service-borrow:${GITHUB_SHA::7} .
+      - name: Push image
+        run: |
+          docker push registry.digitalocean.com/rso-vaje/service-borrow --all-tags
+      - name: K8s cluster kubeconfig file short-lived credentials
+        run: |
+          doctl kubernetes cluster kubeconfig save --expiry-seconds 300 ${{ env.CLUSTER_NAME }}
+      - name: Update deployment secrets
+        run: |
+          cat << EOF >> .env.prod
+          MESSAGE_BROKER_URL=${{ secrets.MESSAGE_BROKER_URL }}
+          ENV_ALLOWED_HOST=${{ secrets.ENV_ALLOWED_HOST }}
+          DJANGO_SECRET_KEY=${{ secrets.DJANGO_SECRET_KEY }}
+          DJANGO_SUPERUSER_USERNAME=${{ secrets.DJANGO_SUPERUSER_USERNAME }}
+          DJANGO_SUPERUSER_PASSWORD=${{ secrets.DJANGO_SUPERUSER_PASSWORD }}
+          DJANGO_SUPERUSER_EMAIL=${{ secrets.DJANGO_SUPERUSER_EMAIL }}
+          DB_NAME=${{ secrets.DB_NAME }}
+          DB_USERNAME=${{ secrets.DB_USERNAME }}
+          DB_PASSWORD=${{ secrets.DB_PASSWORD }}
+          DB_HOST=${{ secrets.DB_HOST }}
+          DB_PORT=${{ secrets.DB_PORT }}
+          EOF
+          kubectl delete secret django-k8s-borrow-prod-env
+          kubectl create secret generic django-k8s-borrow-prod-env --from-env-file=.env.prod
+      - name: Update deployment image
+        run: |
+            kubectl set image deployment/service-borrow-deployment service-borrow=registry.digitalocean.com/rso-vaje/service-borrow:${GITHUB_SHA::7}
+      - name: Wait for rollout to finish
+        run: kubectl rollout status deployment/service-borrow-deployment
+      - name: Migrate Database Command
+        run: |
+          export SINGLE_POD_NAME=$(kubectl get pod -l app=service-borrow-deployment -o jsonpath="{.items[0].metadata.name}")
+          kubectl exec -it $SINGLE_POD_NAME -- bash /app/migrate.sh

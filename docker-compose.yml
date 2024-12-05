@@ -1,23 +1,32 @@
 services:
-  backend:
+  service-borrow:
     build:
       context: .
       dockerfile: Dockerfile
+    image: api-borrow:v1
+    env_file:
+      - .env
+    environment:
+      - PORT=8020
     ports:
-      - "8002:8002"
-    volumes:
-      - .:/app
+      - "8002:8020"
+    command: sh -c "chmod +x /app/migrate.sh && sh /app/migrate.sh && /app/entrypoint.sh"
     depends_on:
       - db
-    entrypoint: ["./wait-for-it.sh", "db:3306", "--", "python", "manage.py", "runserver", "0.0.0.0:8002"]
 
   db:
     image: mysql:8.0
-    restart: always
-    environment:
-        MYSQL_DATABASE: borrow
-        MYSQL_ROOT_PASSWORD: root
-    volumes:
-      - .db_data:/var/lib/mysql
+    expose:
+      - 33068
     ports:
       - "33068:3306"
+    volumes:
+      - db_data:/var/lib/mysql
+    env_file:
+      - .env
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+    restart: always
+
+volumes:
+    db_data:
