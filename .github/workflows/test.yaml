@@ -18,6 +18,7 @@ jobs:
       DB_PASSWORD: root
       DB_HOST: db
       DB_PORT: 3306
+      MYSQL_ROOT_PASSWORD: root
     services:
       db:
         image: mysql:8.0
