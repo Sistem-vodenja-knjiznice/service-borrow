@@ -1,6 +1,12 @@
 FROM python:3.11
-ENV PYTHONUNBUFFERED 1
-WORKDIR /app
-COPY requirements.txt /app/requirements.txt
-RUN pip install --no-cache-dir -r requirements.txt
+
 COPY . /app
+WORKDIR /app
+
+RUN python -m venv /opt/venv
+
+RUN /opt/venv/bin/pip install pip --upgrade && \
+    /opt/venv/bin/pip install -r requirements.txt && \
+    chmod +x entrypoint.sh
+
+CMD ["/app/entrypoint.sh"]

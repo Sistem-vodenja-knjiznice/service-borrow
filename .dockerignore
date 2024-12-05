@@ -4,7 +4,10 @@ __pycache__/
 
 # Ignore virtual environment directories
 venv/
+.venv
 env/
+.env
+.env.prod
 
 # Ignore Docker-related files
 Dockerfile
@@ -20,3 +23,5 @@ docker-compose.yml
 
 # Katastrofa
 .db_data/
+
+.kube/

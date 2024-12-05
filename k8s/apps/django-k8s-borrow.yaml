@@ -1,0 +1,44 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: service-borrow-deployment
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: service-borrow-deployment
+  template:
+    metadata:
+      labels:
+        app: service-borrow-deployment
+    spec:
+      containers:
+        - name: service-borrow
+          image: registry.digitalocean.com/rso-vaje/service-borrow:latest
+          imagePullPolicy: Always
+          envFrom:
+            - secretRef:
+                name: django-k8s-borrow-prod-env
+          env:
+            - name: PORT
+              value: "8002"
+          ports:
+            - containerPort: 8002
+      imagePullSecrets:
+        - name: registry-rso-vaje
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: service-borrow-service
+spec:
+  type: LoadBalancer
+  ports:
+    - name: http
+      protocol: TCP
+      port: 80
+      targetPort: 8002
+  selector:
+    app: service-borrow-deployment
