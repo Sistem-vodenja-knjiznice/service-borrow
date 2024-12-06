@@ -28,9 +28,8 @@ jobs:
       - name: Build container image
         working-directory: .
         run: | 
-          docker build -f Dockerfile \ 
-            -t registry.digitalocean.com/rso-vaje/service-borrow:latest .
-            -t registry.digitalocean.com/rso-vaje/service-borrow:${GITHUB_SHA::7} .
+          docker build -f Dockerfile -t registry.digitalocean.com/rso-vaje/service-borrow:latest .
+          docker build -f Dockerfile  -t registry.digitalocean.com/rso-vaje/service-borrow:${GITHUB_SHA::7} .
       - name: Push image
         run: |
           docker push registry.digitalocean.com/rso-vaje/service-borrow --all-tags
