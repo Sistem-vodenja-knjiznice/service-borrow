@@ -1,4 +1,4 @@
-1. Test django
+1. Test django (0. login )
 
 ```
 python manage.py test
@@ -8,7 +8,7 @@ python manage.py test
 
 ```
 docker build -f Dockerfile -t registry.digitalocean.com/rso-vaje/service-borrow:latest .
-docker build -f Dockerfile  -t registry.digitalocean.com/rso-vaje/service-borrow:v1 .
+docker build -f Dockerfile -t registry.digitalocean.com/rso-vaje/service-borrow:v1 .
 ```
 
 3. Push Container with 2 tags: latest and random
