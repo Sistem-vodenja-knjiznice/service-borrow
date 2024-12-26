@@ -18,5 +18,8 @@ class Borrow(models.Model):
     )
     extend_count = models.IntegerField(default=0)
 
+    class Meta:
+        db_table = 'borrows_borrow'
+
     def __str__(self):
         return self.user_id + ' - ' + self.book_id
