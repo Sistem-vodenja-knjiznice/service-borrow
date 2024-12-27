@@ -3,6 +3,9 @@ from django.urls import path
 from .views import BorrowViewSet
 
 urlpatterns = [
+    path('borrows', BorrowViewSet.as_view({
+        'get': 'list'
+    })),
     path('borrows/user/<str:pk>', BorrowViewSet.as_view({
         'get': 'list_by_user'
     })),
