@@ -25,7 +25,7 @@ SECRET_KEY = os.getenv('DJANGO_SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = str(os.getenv('DEBUG')) == '1'
-ENV_ALLOWED_HOST = os.getenv('ENV_ALLOWED_HOST', 'localhost').split(',')
+ENV_ALLOWED_HOST = os.getenv('ENV_ALLOWED_HOST', '*').split(',')
 
 if ENV_ALLOWED_HOST:
     ALLOWED_HOSTS = ENV_ALLOWED_HOST
@@ -101,7 +101,7 @@ DB_AVAILABLE= all([
     DB_HOST,
     DB_PORT
 ])
-
+print(DB_NAME, DB_USERNAME, DB_PASSWORD, DB_HOST, DB_PORT)
 DB_IGNORE_SSL = os.getenv('DB_IGNORE_SSL') == 'true'
 
 if DB_AVAILABLE:
@@ -115,6 +115,26 @@ if DB_AVAILABLE:
             'PORT': DB_PORT,
         }
     }
+
+# Logging
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'handlers': {
+        'console': {
+            'class': 'logging.StreamHandler',
+        },
+    },
+    'root': {
+        'handlers': ['console'],
+        'level': 'DEBUG',
+    },
+    'django': {
+        'handlers': ['console'],
+        'level': 'INFO',
+        'propagate': True,
+    },
+}
 
 # Password validation
 # https://docs.djangoproject.com/en/5.1/ref/settings/#auth-password-validators

@@ -7,10 +7,14 @@ from datetime import timedelta
 from .models import Borrow
 from .serializers import BorrowSerializer, BorrowRequestSerializer
 from .producer import publish
-# from ..client import check_book_availability
 from client import check_book_availability
 
 @extend_schema_view(
+    list=extend_schema(
+        summary="List all borrows",
+        description="Returns a list of all borrows.",
+        responses=BorrowSerializer,
+    ),
     list_by_user=extend_schema(
         summary="List all borrows by user",
         description="Returns a list of all borrows by user.",
@@ -47,6 +51,13 @@ from client import check_book_availability
     ),
 )
 class BorrowViewSet(viewsets.ViewSet):
+    @action(detail=True, methods=['get'])
+    def list(self, request):
+        borrows = Borrow.objects.all()
+        serializer = BorrowSerializer(borrows, many=True)
+
+        return Response(serializer.data)
+
     @action(detail=True, methods=['get'])
     def list_by_user(self, request, pk=None):
         borrows = Borrow.objects.filter(user_id=pk)
@@ -133,6 +144,7 @@ class BorrowViewSet(viewsets.ViewSet):
 
         borrow.status = 'extended'
         borrow.due_date = borrow.due_date + timedelta(days=14)
+        borrow.extend_count += 1
         borrow.save()
 
         return Response(status=status.HTTP_202_ACCEPTED)
