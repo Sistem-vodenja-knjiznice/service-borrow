@@ -150,6 +150,6 @@ class BorrowViewSet(viewsets.ViewSet):
 
         return Response(status=status.HTTP_202_ACCEPTED)
 
-    def health_check(request):
+    def health_check(self, request):
         health_status = {"status": "healthy"}
         return JsonResponse(health_status, status=200)
