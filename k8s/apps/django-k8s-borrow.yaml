@@ -24,6 +24,18 @@ spec:
               value: "8002"
           ports:
             - containerPort: 8002
+          livenessProbe:
+            httpGet:
+              path: /api/borrows/health
+              port: 8002
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          readinessProbe:
+            httpGet:
+              path: /api/borrows/health
+              port: 8002
+            initialDelaySeconds: 3
+            periodSeconds: 5
       imagePullSecrets:
         - name: registry-rso-vaje
 
