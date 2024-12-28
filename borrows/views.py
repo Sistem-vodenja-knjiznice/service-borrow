@@ -144,6 +144,7 @@ class BorrowViewSet(viewsets.ViewSet):
 
         borrow.status = 'extended'
         borrow.due_date = borrow.due_date + timedelta(days=14)
+        borrow.extend_count += 1
         borrow.save()
 
         return Response(status=status.HTTP_202_ACCEPTED)
