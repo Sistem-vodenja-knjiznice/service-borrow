@@ -23,5 +23,8 @@ urlpatterns = [
     })),
     path('borrows/extend', BorrowViewSet.as_view({
         'put': 'extend',
+    })),
+    path('borrows/health', BorrowViewSet.as_view({
+        'get': 'health_check',
     }))
 ]

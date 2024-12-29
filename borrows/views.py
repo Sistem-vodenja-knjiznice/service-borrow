@@ -2,6 +2,7 @@ from rest_framework import viewsets, status
 from rest_framework.response import Response
 from rest_framework.decorators import action
 from drf_spectacular.utils import extend_schema, extend_schema_view
+from django.http import JsonResponse
 from datetime import timedelta
 
 from .models import Borrow
@@ -148,3 +149,7 @@ class BorrowViewSet(viewsets.ViewSet):
         borrow.save()
 
         return Response(status=status.HTTP_202_ACCEPTED)
+
+    def health_check(self, request):
+        health_status = {"status": "healthy"}
+        return JsonResponse(health_status, status=200)
