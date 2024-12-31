@@ -17,6 +17,8 @@ env:
   variables:
     - name: PORT
       value: "8002"
+    - name: PYTHONUNBUFFERED
+      value: "1"
 
 probes:
   livenessProbe:

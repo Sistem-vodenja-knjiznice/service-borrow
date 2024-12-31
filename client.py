@@ -3,7 +3,7 @@ import book_pb2
 import book_pb2_grpc
 
 def check_book_availability(book_id):
-    channel = grpc.insecure_channel('grpc-service.default.svc.cluster.local:50051')
+    channel = grpc.insecure_channel('book-grpc.default.svc.cluster.local:50051')
 
     stub = book_pb2_grpc.BookServiceStub(channel)
     request = book_pb2.BookRequest(book_id=book_id)
