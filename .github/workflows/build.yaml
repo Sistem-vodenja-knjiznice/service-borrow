@@ -66,7 +66,7 @@ jobs:
             --set image.tag=${GITHUB_SHA::7} \
             --set env.secrets.name=django-k8s-borrow-prod-env \
             --namespace default \
-            --wait --timeout 30s
+            --wait --timeout 120s
 
       - name: Wait for rollout to finish
         run: kubectl rollout status deployment/borrow

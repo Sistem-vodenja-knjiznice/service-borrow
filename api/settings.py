@@ -25,7 +25,7 @@ SECRET_KEY = os.getenv('DJANGO_SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = str(os.getenv('DEBUG')) == '1'
-ENV_ALLOWED_HOST = os.getenv('ENV_ALLOWED_HOST', 'localhost').split(',')
+ENV_ALLOWED_HOST = os.getenv('ENV_ALLOWED_HOST', '*').split(',')
 
 if ENV_ALLOWED_HOST:
     ALLOWED_HOSTS = ENV_ALLOWED_HOST
@@ -104,7 +104,7 @@ DB_AVAILABLE= all([
     DB_HOST,
     DB_PORT
 ])
-
+print(DB_NAME, DB_USERNAME, DB_PASSWORD, DB_HOST, DB_PORT)
 DB_IGNORE_SSL = os.getenv('DB_IGNORE_SSL') == 'true'
 
 if DB_AVAILABLE:
