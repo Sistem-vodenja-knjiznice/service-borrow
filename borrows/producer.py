@@ -5,7 +5,7 @@ from borrows.etcd_gateway import get_etcd_key
 
 load_dotenv()
 
-MESSAGE_BROKER_URL = get_etcd_key('MESSAGE_BROKER_URL')
+MESSAGE_BROKER_URL = get_etcd_key('MESSAGE_BROKER_URL') or ''
 
 params = pika.URLParameters(MESSAGE_BROKER_URL)
 
