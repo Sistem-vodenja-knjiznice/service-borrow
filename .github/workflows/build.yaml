@@ -56,6 +56,10 @@ jobs:
           DB_PASSWORD=${{ secrets.DB_PASSWORD }}
           DB_HOST=${{ secrets.DB_HOST }}
           DB_PORT=${{ secrets.DB_PORT }}
+          ETCD_HOST=${{ secrets.ETCD_HOST }}
+          ETCD_PORT=${{ secrets.ETCD_PORT }}
+          ETCD_USERNAME=${{ secrets.ETCD_USERNAME }}
+          ETCD_PASSWORD=${{ secrets.ETCD_PASSWORD }}
           EOF
           kubectl delete secret django-k8s-borrow-prod-env
           kubectl create secret generic django-k8s-borrow-prod-env --from-env-file=.env.prod
@@ -67,6 +71,9 @@ jobs:
             --set env.secrets.name=django-k8s-borrow-prod-env \
             --namespace default \
             --wait --timeout 120s
+
+      - name: Restart pods after Helm upgrade
+        run: kubectl rollout restart deployment/borrow
 
       - name: Wait for rollout to finish
         run: kubectl rollout status deployment/borrow

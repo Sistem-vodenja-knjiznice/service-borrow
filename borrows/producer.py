@@ -1,9 +1,11 @@
-import pika, json, os
+import pika, json
+
 from dotenv import load_dotenv
+from borrows.etcd_gateway import get_etcd_key
 
 load_dotenv()
 
-MESSAGE_BROKER_URL = os.getenv('MESSAGE_BROKER_URL')
+MESSAGE_BROKER_URL = get_etcd_key('MESSAGE_BROKER_URL')
 
 params = pika.URLParameters(MESSAGE_BROKER_URL)
 
