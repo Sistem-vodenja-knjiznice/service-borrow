@@ -13,6 +13,8 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 from pathlib import Path
 import os
 
+from borrows.etcd_gateway import get_etcd_key
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -21,14 +23,14 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/5.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = os.getenv('DJANGO_SECRET_KEY')
+SECRET_KEY = get_etcd_key('BORROW/DJANGO_SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = str(os.getenv('DEBUG')) == '1'
-ENV_ALLOWED_HOST = os.getenv('ENV_ALLOWED_HOST', '*').split(',')
+DEBUG = str(get_etcd_key('DEBUG')) == '1'
+ENV_ALLOWED_HOST = get_etcd_key('BORROW/ENV_ALLOWED_HOST')
 
 if ENV_ALLOWED_HOST:
-    ALLOWED_HOSTS = ENV_ALLOWED_HOST
+    ALLOWED_HOSTS = ENV_ALLOWED_HOST.split(',')
 
 
 # Application definition
@@ -91,11 +93,11 @@ DATABASES = {
     }
 }
 
-DB_NAME = os.getenv('DB_NAME')
-DB_USERNAME = os.getenv('DB_USERNAME')
-DB_PASSWORD = os.getenv('DB_PASSWORD')
-DB_HOST = os.getenv('DB_HOST')
-DB_PORT = os.getenv('DB_PORT')
+DB_NAME = get_etcd_key('BORROW/DB_NAME')
+DB_USERNAME = get_etcd_key('BORROW/DB_USERNAME')
+DB_PASSWORD = get_etcd_key('BORROW/DB_PASSWORD')
+DB_HOST = get_etcd_key('BORROW/DB_HOST')
+DB_PORT = get_etcd_key('BORROW/DB_PORT')
 
 DB_AVAILABLE= all([
     DB_NAME,
@@ -104,8 +106,8 @@ DB_AVAILABLE= all([
     DB_HOST,
     DB_PORT
 ])
-print(DB_NAME, DB_USERNAME, DB_PASSWORD, DB_HOST, DB_PORT)
-DB_IGNORE_SSL = os.getenv('DB_IGNORE_SSL') == 'true'
+
+DB_IGNORE_SSL = get_etcd_key('DB_IGNORE_SSL') == 'true'
 
 if DB_AVAILABLE:
     DATABASES = {

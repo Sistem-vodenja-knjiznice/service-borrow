@@ -18,6 +18,10 @@ jobs:
       DB_PASSWORD: root
       DB_HOST: db
       DB_PORT: 3306
+      ETCD_HOST: ${{ secrets.ETCD_HOST }}
+      ETCD_PORT: ${{ secrets.ETCD_PORT }}
+      ETCD_USERNAME: ${{ secrets.ETCD_USERNAME }}
+      ETCD_PASSWORD: ${{ secrets.ETCD_PASSWORD }}
       MYSQL_ROOT_PASSWORD: root
       MESSAGE_BROKER_URL: ${{ secrets.MESSAGE_BROKER_URL }}
     services:
@@ -44,6 +48,12 @@ jobs:
         uses: actions/setup-python@v3
         with:
           python-version: ${{ matrix.python-version }}
+
+      - name: Install etcd-client
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y etcd-client
+
 
       - name: Install Dependencies
         run: |
