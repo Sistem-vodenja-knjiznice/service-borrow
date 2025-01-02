@@ -1,0 +1,62 @@
+# values.yaml
+
+replicaCount: 3
+
+image:
+  repository: registry.digitalocean.com/rso-vaje/service-borrow
+  tag: "latest"
+  pullPolicy: Always
+
+service:
+  type: ClusterIP
+  port: 8002
+
+env:
+  secrets:
+    name: django-k8s-borrow-prod-env
+  variables:
+    - name: PORT
+      value: "8002"
+    - name: PYTHONUNBUFFERED
+      value: "1"
+
+probes:
+  livenessProbe:
+    httpGet:
+      path: /api/borrows/health
+      port: 8002
+    initialDelaySeconds: 5
+    periodSeconds: 10
+  readinessProbe:
+    httpGet:
+      path: /api/borrows/health
+      port: 8002
+    initialDelaySeconds: 3
+    periodSeconds: 5
+
+imagePullSecrets:
+  - name: registry-rso-vaje
+
+
+ingress:
+  enabled: true
+  className: nginx
+  annotations: {}
+  hosts:
+    - host:
+      paths:
+        - path: /api/borrows
+          pathType: Prefix
+          service:
+            port:
+              number: 8002
+
+serviceAccount:
+  create: true
+  name: ""
+
+autoscaling:
+  enabled: false  # Set to true to enable Horizontal Pod Autoscaler (HPA)
+  minReplicas: 1  # Minimum number of replicas
+  maxReplicas: 5  # Maximum number of replicas
+  targetCPUUtilizationPercentage: 80
