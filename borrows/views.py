@@ -1,7 +1,7 @@
 from rest_framework import viewsets, status
 from rest_framework.response import Response
 from rest_framework.decorators import action
-from drf_spectacular.utils import extend_schema, extend_schema_view
+from drf_spectacular.utils import extend_schema, extend_schema_view, OpenApiResponse
 from django.http import JsonResponse
 from datetime import timedelta
 
@@ -13,42 +13,107 @@ from client import check_book_availability
 @extend_schema_view(
     list=extend_schema(
         summary="List all borrows",
-        description="Returns a list of all borrows.",
-        responses=BorrowSerializer,
+        description="Returns a list of all borrows in the system.",
+        responses={
+            200: OpenApiResponse(
+                response=BorrowSerializer(many=True),
+                description="List of borrows.",
+            ),
+            400: OpenApiResponse(
+                description="Bad Request.",
+            ),
+        },
     ),
     list_by_user=extend_schema(
         summary="List all borrows by user",
-        description="Returns a list of all borrows by user.",
-        responses=BorrowSerializer,
+        description="Returns a list of all borrows made by a specific user.",
+        responses={
+            200: OpenApiResponse(
+                response=BorrowSerializer(many=True),
+                description="List of borrows by user.",
+            ),
+            400: OpenApiResponse(
+                description="Bad Request.",
+            ),
+        },
     ),
     list_by_book=extend_schema(
         summary="List all borrows by book",
-        description="Returns a list of all borrows by book.",
-        responses=BorrowSerializer,
+        description="Returns a list of all borrows for a specific book.",
+        responses={
+            200: OpenApiResponse(
+                response=BorrowSerializer(many=True),
+                description="List of borrows by book.",
+            ),
+            400: OpenApiResponse(
+                description="Bad Request.",
+            ),
+        },
     ),
     list_overdue=extend_schema(
         summary="List all overdue borrows",
-        description="Returns a list of all overdue borrows.",
-        responses=BorrowSerializer,
+        description="Returns a list of all borrows that are overdue.",
+        responses={
+            200: OpenApiResponse(
+                response=BorrowSerializer(many=True),
+                description="List of overdue borrows.",
+            ),
+            400: OpenApiResponse(
+                description="Bad Request.",
+            ),
+        },
     ),
     create=extend_schema(
         summary="Borrow a book",
         description="Borrows a book. A user can borrow a book only once .The due date is 30 days from the borrow date."
                     "Sends a message to the book service to decrement the book's stock.",
         request=BorrowRequestSerializer,
-        responses=BorrowSerializer,
+        responses={
+            201: OpenApiResponse(
+                response=BorrowSerializer,
+                description="Borrow created successfully.",
+            ),
+            400: OpenApiResponse(
+                description="Validation or availability error.",
+            ),
+        },
     ),
     return_book=extend_schema(
         summary="Return a book",
         description="Returns a book. A user can return a book only once. Sends a message to the book service to "
                     "increment the book's stock",
         request=BorrowRequestSerializer,
+        responses={
+            202: OpenApiResponse(
+                description="Book returned successfully.",
+            ),
+            400: OpenApiResponse(
+                description="Validation error or book not borrowed.",
+            ),
+        },
     ),
     extend=extend_schema(
-        summary="Extend a book",
+        summary="Extend a borrow",
         description="Extends a book. A user can extend a book only once. An extended book is due 14 days from the "
                     "extension date.",
         request=BorrowRequestSerializer,
+        responses={
+            202: OpenApiResponse(
+                description="Borrow extended successfully.",
+            ),
+            400: OpenApiResponse(
+                description="Validation error or extension not allowed.",
+            ),
+        },
+    ),
+    health_check=extend_schema(
+        summary="Health check",
+        description="Returns the health status of the service.",
+        responses={
+            200: OpenApiResponse(
+                description="Service is healthy",
+            ),
+        },
     ),
 )
 class BorrowViewSet(viewsets.ViewSet):
@@ -150,6 +215,7 @@ class BorrowViewSet(viewsets.ViewSet):
 
         return Response(status=status.HTTP_202_ACCEPTED)
 
+    @action(detail=False, methods=['get'], url_path='health')
     def health_check(self, request):
         health_status = {"status": "healthy"}
         return JsonResponse(health_status, status=200)
